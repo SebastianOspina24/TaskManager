@@ -1,24 +1,47 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import Email_Password_Fields from "./Email-Password.component";
+import Email_Password_Fields from "../components/Email-Password.component";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import RedirecTag from "./RedirectTag.component";
+import RedirecTag from "../components/RedirectTag.component";
+import { useHistory } from "react-router-dom";
+import Router from "next/router";
 
 const theme = createTheme();
 
-export default function SignIn() {
+const SignIn = (props) => {
+  const history = useHistory();
+  const [token, settoken] = useState("");
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    var jsondata = {
       email: data.get("email"),
       password: data.get("password"),
-    });
+    };
+    fetch("http://localhost:8080/v2/auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsondata),
+    })
+      .then((response) => response.json())
+      .then((datas) => {
+        settoken(datas.token);
+        sessionStorage.setItem("token", datas.token);
+        sessionStorage.setItem(
+          "expirationDate",
+          Date.parse(datas.expirationDate)
+        );
+      });
   };
-
+  useEffect(() => {
+    if (token != "") Router.push("/home");
+  }, [token, history]);
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -57,4 +80,5 @@ export default function SignIn() {
       </Container>
     </ThemeProvider>
   );
-}
+};
+export default SignIn;
