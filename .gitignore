@@ -18,8 +18,6 @@
 # misc
 .DS_Store
 
-./husky
-
 # debug
 npm-debug.log*
 yarn-debug.log*
